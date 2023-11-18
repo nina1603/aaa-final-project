@@ -1,6 +1,16 @@
 import random
 import click
+import functools
 
+def log(pattern):
+    def actual_decorator(func):
+        @functools.wraps(func)
+        def decor(*args, **kwargs):
+            time_exec = random.randint(7, 20)
+            print(f"{func.__name__} {pattern.format(time_exec)}")
+            return func(*args, **kwargs)
+        return decor
+    return actual_decorator
 
 class Pizza:
 
@@ -22,12 +32,29 @@ class Pizza:
         self.bake_time, self.delivery_time = None, None
         self.pizza_dict()
         self.order_type = order_type
+
+    def __call__(self):
         self.set_process()
 
+    @log('👨‍🍳 Испекли за {} минут!')
+    def bake(self):
+        """Готовит пиццу"""
+
+    @log('Отдали заказ за {} минут!')
+    def give_away(self):
+        """Самовывоз"""
+
+    @log('🚗 Привезли заказ за {} минут!')
+    def delivery(self):
+        """Доставка"""
+        self.delivery_time = random.randint(15, 60)
+
     def set_process(self) -> None:
-        self.bake_time = random.randint(5, 20)
+        self.bake()
         if self.order_type == 'delivery':
-            self.delivery_time = random.randint(15, 60)
+            self.delivery()
+        else:
+            self.give_away()
 
     def pizza_dict(self) -> None:
         """
@@ -79,10 +106,7 @@ def order(pizza: str, delivery: bool, size: str) -> None:
         my_status = 'delivery' * delivery + 'in restaurant' * (not delivery)
 
         new_pizza = Pizza(pizza, size, order_type=my_status)
-        click.echo(f"👨‍🍳 Приготовили за {new_pizza.bake_time} мин!")
-        if new_pizza.order_type == 'delivery':
-            click.echo(f"🚗 Доставили за {new_pizza.delivery_time} мин!")
-
+        new_pizza()
 
 if __name__ == '__main__':
     cli()
