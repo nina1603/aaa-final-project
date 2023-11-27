@@ -3,6 +3,7 @@ import click
 import functools
 
 def log(pattern):
+    assert isinstance(pattern, str)
     def actual_decorator(func):
         @functools.wraps(func)
         def decor(*args, **kwargs):
@@ -28,6 +29,8 @@ class Pizza:
         initializes all parameters of the pizza ordered
         """
         self.name = name
+        if size not in ['S', 'M', 'L', 'XL']:
+            raise ValueError("Invalid pizza size!")
         self.size = size
         self.bake_time, self.delivery_time = None, None
         self.pizza_dict()
@@ -66,6 +69,15 @@ class Pizza:
             print(f'{i}. {component}')
         print("----------------")
 
+    def __eq__(self, other):
+        """
+        reinitizalize objects comparison
+        :param other: another instance of Pizza class
+        :return: True if objects are equal, False otherwise
+        """
+        if not isinstance(other, Pizza):
+            raise TypeError("Invalid right operand type!")
+        return self.size == other.size and self.name == other.name
 
 @click.group()
 def cli():
